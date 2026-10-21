@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tmux practice — learn the prefix</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1017'/%3E%3Crect x='6' y='9' width='20' height='14' rx='2' fill='none' stroke='%239ece6a' stroke-width='2'/%3E%3Cpath d='M11 14l3 2.5-3 2.5' fill='none' stroke='%239ece6a' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="dot"></span>tmux<span class="dim">·</span>practice</div>
+  <div class="top-actions">
+    <button id="prefix-chip" class="chip" title="Arm the prefix. Also works by pressing it on your keyboard.">
+      prefix <b id="prefix-label">Ctrl+b</b>
+    </button>
+    <button id="theme-btn" class="ghost" title="Toggle light/dark">◐</button>
+    <button id="reset-top" class="ghost" title="Reset drill progress">reset</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <section class="sim">
+    <div class="term" id="term">
+      <div class="term-bar">
+        <span class="lights"><i></i><i></i><i></i></span>
+        <span class="term-title">you@devbox: ~ — tmux</span>
+        <span class="term-note">simulated</span>
+      </div>
+      <div class="panes" id="panes" aria-label="Simulated tmux panes"></div>
+      <div class="msgline" id="msgline" aria-live="polite"></div>
+      <div class="cmdline" id="cmdline" hidden></div>
+      <div class="statusline" id="statusline"></div>
+      <div class="overlay" id="overlay" hidden></div>
+    </div>
+
+    <div class="below">
+      <div class="hintline" id="hint" aria-live="polite"></div>
+      <div class="keypad" id="keypad" aria-label="Tap keys for touch devices">
+        <div class="keyrow">
+        <button class="key" data-k="prefix" title="Arm prefix">^b</button>
+        <button class="key" data-k="c" title="new window">c</button>
+        <button class="key" data-k="n" title="next window">n</button>
+        <button class="key" data-k="p" title="previous window">p</button>
+        <button class="key" data-k="%" title="split side by side">%</button>
+        <button class="key" data-k="&quot;" title="split stacked">&quot;</button>
+        <button class="key" data-k="o" title="next pane">o</button>
+        <button class="key" data-k="z" title="zoom pane">z</button>
+        <button class="key" data-k="x" title="kill pane">x</button>
+        <button class="key" data-k="," title="rename window">,</button>
+        <button class="key" data-k="d" title="detach">d</button>
+        <button class="key" data-k="s" title="session list">s</button>
+        <button class="key" data-k="[" title="copy mode">[</button>
+        <button class="key" data-k=":" title="command prompt">:</button>
+        <button class="key" data-k="?" title="key list">?</button>
+        <button class="key" data-k="&amp;" title="kill window">&amp;</button>
+        <button class="key" data-k="w" title="window list">w</button>
+        </div>
+        <div class="keyrow">
+        <button class="key wide" data-k="C-ArrowLeft" title="resize pane left">⇧←</button>
+        <button class="key wide" data-k="C-ArrowUp" title="resize pane up">⇧↑</button>
+        <button class="key wide" data-k="C-ArrowDown" title="resize pane down">⇧↓</button>
+        <button class="key wide" data-k="C-ArrowRight" title="resize pane right">⇧→</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="drills" role="tab">Drills</button>
+      <button class="tab" data-tab="cheat" role="tab">Cheatsheet</button>
+      <button class="tab" data-tab="real" role="tab">Real tmux</button>
+      <button class="tab" data-tab="settings" role="tab">Settings</button>
+    </nav>
+
+    <div class="tab-body" id="tab-drills">
+      <div class="drill-head">
+        <span id="drill-count" class="pill">0 / 15</span>
+        <span id="drill-title" class="drill-title">Warm up</span>
+      </div>
+      <div class="progress" aria-hidden="true"><i id="drill-fill"></i></div>
+      <div class="card drill-card">
+        <p id="drill-task" class="drill-task"></p>
+        <p class="drill-hint"><span class="label">keys</span> <span id="drill-keys"></span></p>
+        <div class="drill-actions">
+          <button id="drill-hint-btn" class="ghost">show hint</button>
+          <button id="drill-skip" class="ghost">skip</button>
+          <button id="drill-next" class="primary" hidden>next</button>
+        </div>
+        <p id="drill-extra" class="muted tiny" hidden></p>
+      </div>
+      <p class="muted tiny">The drills check actions, not your fingers. Any key works — you just won’t advance until you do the requested one.</p>
+    </div>
+
+    <div class="tab-body" id="tab-cheat" hidden>
+      <input id="cheat-search" type="search" placeholder="filter: split, session, copy…" autocomplete="off">
+      <div id="cheat-list" class="cheat-list"></div>
+    </div>
+
+    <div class="tab-body" id="tab-real" hidden>
+      <h3>Install</h3>
+      <pre><code>sudo pacman -S tmux
+tmux -V</code></pre>
+
+      <h3>A config worth keeping</h3>
+      <p class="muted tiny">Put this in <code>~/.tmux.conf</code>, then <code>tmux source-file ~/.tmux.conf</code>.</p>
+      <pre><code>set -g mouse on
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -g history-limit 50000
+set -sg escape-time 10
+set -g focus-events on
+set -g set-clipboard on
+
+# friendlier splits that keep the current path
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+# reload
+bind r source-file ~/.tmux.conf \; display "reloaded"
+
+# readable status line
+set -g status-style "bg=#1f2430,fg=#c8d3f5"
+set -g window-status-current-style "bg=#2a3040,fg=#9ece6a,bold"</code></pre>
+
+      <h3>The daily loop</h3>
+      <pre><code>tmux new -A -s work -c ~/code/myproject
+# work… then detach with  Ctrl+b d
+
+tmux ls
+tmux attach -t work</code></pre>
+      <p class="muted tiny"><code>new -A</code> means attach-or-create, so the same command is safe to run every time.</p>
+
+      <h3>From the phone</h3>
+      <pre><code>ssh you@devbox
+# or, over a tailnet:
+mosh devbox -- \
+  tmux new -A -s work</code></pre>
+      <p class="muted tiny">tmux keeps the process alive when the phone drops. mosh keeps the link alive when the network changes. Use both.</p>
+
+      <h3>Agent host pattern</h3>
+      <pre><code># one session per repo, nothing attached
+tmux new -d -s work -c ~/code/myproject 'claude --continue'
+tmux capture-pane -pt work | tail -20   # peek without attaching
+tmux kill-session -t work</code></pre>
+      <p class="muted tiny"><code>capture-pane -p</code> is how you check on an agent from a script or a notification hook.</p>
+    </div>
+
+    <div class="tab-body" id="tab-settings" hidden>
+      <fieldset class="field">
+        <legend>Prefix</legend>
+        <label><input type="radio" name="prefix" value="ctrl-b"> Ctrl+b <span class="muted tiny">(default)</span></label>
+        <label><input type="radio" name="prefix" value="ctrl-a"> Ctrl+a</label>
+        <label><input type="radio" name="prefix" value="ctrl-space"> Ctrl+Space</label>
+      </fieldset>
+      <p class="muted tiny">Firefox reserves Ctrl+b for the bookmarks sidebar and may swallow it. If the prefix doesn’t arm, pick Ctrl+a or tap the prefix chip.</p>
+
+      <fieldset class="field">
+        <legend>Display</legend>
+        <label><input type="checkbox" id="opt-hints" checked> show hint line and key pad</label>
+      </fieldset>
+
+      <div class="settings-actions">
+        <button id="wipe" class="danger ghost">reset all progress</button>
+      </div>
+
+      <h3>About</h3>
+      <p class="muted tiny">A single-page simulator. No network, no dependencies, no telemetry. Progress lives in <code>localStorage</code>; clearing site data resets it.</p>
+    </div>
+  </aside>
+</main>
+
+<noscript><p class="noscript">This page is a simulator and needs JavaScript enabled.</p></noscript>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
