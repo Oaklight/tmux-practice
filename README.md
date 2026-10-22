@@ -14,7 +14,8 @@ xdg-open index.html      # or: python3 -m http.server -d . 8000
 - **Simulated terminal** with real split trees, windows, a status line, and
   a working prefix key (`Ctrl+b` by default).
 - **15 drills** that check the action you performed, not the exact keystrokes.
-  Progress is stored in `localStorage`.
+  Move with prev/next or jump straight to a step via the numbered strip.
+  Progress is stored in `localStorage`; a single step can be marked undone.
 - **Cheatsheet** covering keys, shell commands, and config lines, with filter.
 - **Touch keypad** so the same drills work on a phone.
 - **Copy mode**, detach/reattach, command prompt with a small real parser,

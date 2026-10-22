@@ -483,6 +483,57 @@ kbd, .kbd {
   transition: width .25s ease;
 }
 
+.drill-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.navbtn { padding: 5px 10px; font-size: 12px; }
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.step {
+  position: relative;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font: 600 10.5px/1 var(--mono);
+  cursor: pointer;
+}
+.step:hover { border-color: var(--muted); color: var(--text); }
+.step:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.step.done {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel-2));
+}
+.step.current {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  color: var(--text);
+}
+.step.done::after {
+  content: "✓";
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: 700 8px/11px var(--sans);
+  text-align: center;
+}
+
 .card {
   border: 1px solid var(--line);
   border-radius: 10px;

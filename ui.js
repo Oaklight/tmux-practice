@@ -409,19 +409,33 @@
     return 0;
   }
 
+  function drillPasses(drill, action, payload) {
+    try { return !!drill.test(action, payload); } catch (err) { return false; }
+  }
+
   function checkDrill(action, payload) {
+    const current = D.DRILLS[drillIdx % D.DRILLS.length];
+    if (current && drillPasses(current, action, payload)) {
+      if (prefs.done.indexOf(current.id) >= 0) {
+        E.msg('✓ correct — already completed, practice anyway', 1800);
+        return;
+      }
+      prefs.done.push(current.id);
+      E.savePrefs();
+      E.msg('✓ ' + subPrefix(current.task), 3200);
+      hintOpen = false;
+      return;
+    }
+
     let hit = null;
     D.DRILLS.forEach((candidate) => {
       if (hit || prefs.done.indexOf(candidate.id) >= 0) return;
-      let ok = false;
-      try { ok = !!candidate.test(action, payload); } catch (err) { ok = false; }
-      if (ok) hit = candidate;
+      if (drillPasses(candidate, action, payload)) hit = candidate;
     });
     if (!hit) return;
     prefs.done.push(hit.id);
     E.savePrefs();
     E.msg('✓ ' + subPrefix(hit.task), 3200);
-    drillIdx = nextUndone(drillIdx);
     hintOpen = false;
   }
 
@@ -434,19 +448,49 @@
     const list = D.DRILLS;
     const total = list.length;
     const done = prefs.done.length;
+    const current = drillIdx % total;
+    const drill = list[current];
+
     $('#drill-count').textContent = done + ' / ' + total;
     $('#drill-fill').style.width = (100 * done / total) + '%';
-
-    const drill = list[drillIdx % total];
-    $('#drill-title').textContent = done === total
-      ? 'all drills complete'
-      : 'drill ' + ((drillIdx % total) + 1) + ' of ' + total;
+    $('#drill-title').textContent = 'step ' + (current + 1) + ' of ' + total
+      + (done === total ? ' · all done' : '');
     $('#drill-task').textContent = subPrefix(drill.task);
     $('#drill-keys').textContent = hintOpen ? subPrefix(drill.keys) : 'hidden — tap “show hint”';
     $('#drill-extra').hidden = !hintOpen || !drill.extra;
     $('#drill-extra').textContent = subPrefix(drill.extra) || '';
     $('#drill-hint-btn').textContent = hintOpen ? 'hide hint' : 'show hint';
-    $('#drill-next').hidden = prefs.done.indexOf(drill.id) < 0;
+    $('#drill-reset').hidden = prefs.done.indexOf(drill.id) < 0;
+    renderStrip();
+  }
+
+  function renderStrip() {
+    const host = $('#drill-strip');
+    const current = drillIdx % D.DRILLS.length;
+    host.innerHTML = '';
+    D.DRILLS.forEach((drill, i) => {
+      const done = prefs.done.indexOf(drill.id) >= 0;
+      const btn = document.createElement('button');
+      btn.className = 'step' + (done ? ' done' : '') + (i === current ? ' current' : '');
+      btn.textContent = String(i + 1);
+      btn.title = subPrefix(drill.task);
+      btn.setAttribute('aria-label', 'Drill ' + (i + 1) + ': ' + subPrefix(drill.task)
+        + (done ? ' (done)' : ''));
+      btn.setAttribute('aria-current', i === current ? 'step' : 'false');
+      btn.addEventListener('click', () => goToDrill(i));
+      host.appendChild(btn);
+    });
+  }
+
+  function goToDrill(index) {
+    const total = D.DRILLS.length;
+    drillIdx = ((index % total) + total) % total;
+    hintOpen = false;
+    render();
+  }
+
+  function stepDrill(delta) {
+    goToDrill((drillIdx % D.DRILLS.length) + delta);
   }
 
   /* ---------- render ---------- */
@@ -952,14 +996,13 @@
       hintOpen = !hintOpen;
       render();
     });
-    $('#drill-skip').addEventListener('click', () => {
-      drillIdx = (drillIdx + 1) % D.DRILLS.length;
-      hintOpen = false;
-      render();
-    });
-    $('#drill-next').addEventListener('click', () => {
-      drillIdx = nextUndone(drillIdx);
-      hintOpen = false;
+    $('#drill-prev').addEventListener('click', () => stepDrill(-1));
+    $('#drill-next').addEventListener('click', () => stepDrill(1));
+    $('#drill-reset').addEventListener('click', () => {
+      const drill = D.DRILLS[drillIdx % D.DRILLS.length];
+      prefs.done = prefs.done.filter((id) => id !== drill.id);
+      E.savePrefs();
+      E.msg('drill marked undone', 1500);
       render();
     });
     $('#theme-btn').addEventListener('click', () => {

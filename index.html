@@ -82,17 +82,21 @@
         <span id="drill-title" class="drill-title">Warm up</span>
       </div>
       <div class="progress" aria-hidden="true"><i id="drill-fill"></i></div>
+      <div class="drill-nav">
+        <button id="drill-prev" class="ghost navbtn" title="Previous drill">‹ prev</button>
+        <button id="drill-next" class="ghost navbtn" title="Next drill">next ›</button>
+      </div>
+      <div id="drill-strip" class="strip" role="group" aria-label="Jump to a drill"></div>
       <div class="card drill-card">
         <p id="drill-task" class="drill-task"></p>
         <p class="drill-hint"><span class="label">keys</span> <span id="drill-keys"></span></p>
         <div class="drill-actions">
           <button id="drill-hint-btn" class="ghost">show hint</button>
-          <button id="drill-skip" class="ghost">skip</button>
-          <button id="drill-next" class="primary" hidden>next</button>
+          <button id="drill-reset" class="ghost" hidden title="Clear this drill's completion">mark undone</button>
         </div>
         <p id="drill-extra" class="muted tiny" hidden></p>
       </div>
-      <p class="muted tiny">The drills check actions, not your fingers. Any key works — you just won’t advance until you do the requested one.</p>
+      <p class="muted tiny">Use <b>prev</b> / <b>next</b> or the numbered strip to revisit any drill. Progress is saved; <b>mark undone</b> clears a single step.</p>
     </div>
 
     <div class="tab-body" id="tab-cheat" hidden>
