@@ -51,3 +51,7 @@ set -g mouse on           source-file ~/.tmux.conf
 | `data.js` | key list, drills, cheatsheet |
 | `engine.js` | state, split tree, mutations, command parser |
 | `ui.js` | rendering, keyboard/pointer input, drills, persistence |
+
+Asset URLs in `index.html` carry a `?v=` query. Bump it whenever `styles.css`
+or one of the `.js` files changes, so a Pages deployment cannot serve new HTML
+with cached old assets.
