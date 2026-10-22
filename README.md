@@ -1,5 +1,7 @@
 # tmux practice
 
+**Live:** https://oaklight.github.io/tmux-practice/
+
 An offline, single-page simulator for building tmux muscle memory. No build
 step, no dependencies, no network calls.
 
